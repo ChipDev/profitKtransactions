@@ -37,11 +37,12 @@ public class Program {
 		LinkedList<int[]> merging = trends;
 		
 		for(int i = trends.Count; i > k; i-=1){ //removal / merge
-			LinkedListNode<int[]> lowestcausenode; //Just a node.
-			int lowestcause;
+			LinkedListNode<int[]> lowestcausenode = trends.First; //Just a node.
+			int lowestcause = 10000;
 			LinkedListNode<int[]> currentnode = trends.First;
 			bool finalremoval = false;
-			for(int index = 0; index < trends.Count; trends++){
+			bool first = true;
+			for(int index = 0; index < trends.Count; index++){
 				int cause = 0;
 				bool isremoval = false;
 				int[] data = currentnode.Value; 
@@ -53,18 +54,24 @@ public class Program {
 					isremoval = true;
 				}else{ //MERGE the current into the next and find the cause (PROFIT 1 + PROFIT 2) - (2LAST - 1START)
 					int[] next = currentnode.Next.Value;
-					int profit = (data[3]-data[2])+(next[3]-next[2]);
-					int newprofit = (next[3] - data[2]);					
-					cause = profit-newprofit;
+					int tprofit = (data[3]-data[2])+(next[3]-next[2]);
+					int tnewprofit = (next[3] - data[2]);					
+					cause = tprofit-tnewprofit;
 				}
 				if(currentnode.Equals(trends.First)){
 					int[] next = currentnode.Next.Value;
-					int profit = (data[3]-data[2])+(next[3]-next[2]);
-					int newprofit = (next[3] - data[2]);	
-					if(profit-newprofit<cause){
-						cause = profit-newprofit;
+					int tprofit = (data[3]-data[2])+(next[3]-next[2]);
+					int tnewprofit = (next[3] - data[2]);	
+					if(tprofit-tnewprofit<cause){
+						cause = tprofit-tnewprofit;
 					}
-					
+				
+				}
+				if(first){
+					first=false;
+					lowestcause = cause;
+					lowestcausenode = currentnode;
+					finalremoval = isremoval;
 				}
 				if(cause < lowestcause){
 					lowestcause = cause;
@@ -79,10 +86,10 @@ public class Program {
 			if(finalremoval){
 				merging.Remove(currentnode);
 			}else{
-				int[] currentdata = currentnode.Value;
-				int[] nextdata = currentnode.Next.Value;
-				merging.Remove(currentnode.Next);
-				currentnode.Value = new int[] { currentdata[0], nextdata[1], currentdata[2], nextdata[3] };
+				int[] currentdata = lowestcausenode.Value;
+				int[] nextdata = lowestcausenode.Next.Value;
+				merging.Remove(lowestcausenode.Next);
+				lowestcausenode.Value = new int[] { currentdata[0], nextdata[1], currentdata[2], nextdata[3] };
 			}
 			
 			//merging / removal complete
